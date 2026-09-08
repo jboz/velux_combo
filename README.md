@@ -1,0 +1,97 @@
+# Velux Sync
+
+Custom Home Assistant integration that synchronises a **Velux roof window** and its **store** (roller shutter) so they move in a safe, deterministic sequence.
+
+> If you already use the official **Velux Active** integration (KIG 300 / KIX 300 gateway), this wrapper simply drives the two cover entities it provides.
+
+## How it works
+
+Each configured cover exposes a single, combined `cover` entity. It never sends conflicting commands:
+
+| Command | Sequence |
+|---------|----------|
+| **Open** | 1. Store opens → 2. Window opens *(only after the store is fully open)* |
+| **Close** | 1. Window closes → 2. Store closes *(only after the window is fully closed)* |
+| **Stop** | Stops both entities if they are moving, and cancels a pending sequence |
+
+Why this order?
+
+- **Opening**: the store moves first so it is never rolled down while the window opens (no stored fabric jamming under the moving pane).
+- **Closing**: the window closes first so it is never left exposed while the store rolls down.
+
+## Installation (HACS)
+
+1. Make sure [HACS](https://hacs.xyz) is installed.
+2. In HACS → **three-dot menu** → **Custom repositories**:
+   - URL: `https://github.com/jboz/velux_sync`
+   - Category: **Integration**
+3. Click **Download** and install.
+4. **Restart Home Assistant.**
+
+*Manual install:* copy the `custom_components/velux_sync` folder into your `<config>/custom_components/` directory and restart Home Assistant.
+
+## Configuration
+
+The integration is configured entirely from the UI:
+
+1. Go to **Settings → Devices & Services → Add Integration → Velux Sync**.
+2. Select the **window** cover entity.
+3. Select the **store** cover entity.
+4. (Optional) give the pair a name.
+5. Repeat the flow for every additional window/store pair.
+
+You will then see one new cover entity per pair.
+
+### Requirements
+
+- Home Assistant **2024.1 or newer**.
+- Two existing **cover** entities (the window and its store), for example from the
+  [Velux Active](https://www.home-assistant.io/integrations/velux/) or
+  [HomeKit Controller](https://www.home-assistant.io/integrations/homekit_controller/)
+  integration.
+
+## Usage
+
+Once configured, use the new cover entity like any other:
+
+- The dashboard card, `cover.open_cover` / `cover.close_cover` services,
+  automations, scripts and virtual assistants all target the single combined
+  entity.
+- The entity reports **open / closed / opening / closing** by combining the
+  state of both child covers.
+
+### Notes
+
+- Only full *open → close* commands are exposed (no position slider): the
+  sequencing guarantees the window is never partially opened with the store
+  rolled down.
+- If a child never reaches its target within `120 s`, the integration logs a
+  warning and moves on to the next step.
+- Commands that arrive while a sequence is already running are ignored
+  (see `Stop`).
+
+## Troubleshooting
+
+- **"This entity must be a cover entity"** — the window/store must be `cover`
+  entities (entity id starting with `cover.`).
+- **Entities not moving** — check the underlying Velux/HomeKit integration
+  can control the window and store individually first.
+- **Sequence stops early** — a child reported itself as *open/closed* via its
+  `current_position` even though it was still moving; this is a limitation of
+  the underlying entity, not of this integration.
+
+## Development
+
+```bash
+pip install -e .[dev]  # or just run pylint/mypy
+```
+
+This repository is formatted with `ruff`. No third-party runtime dependencies.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
+
+---
+
+*Not affiliated with VELUX. Velux is a trademark of VELUX Group.*

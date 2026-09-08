@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Velux Sync",
+        "description": "Associez une fenêtre de toit et son store pour qu'ils bougent en séquence : à l'ouverture, le store s'ouvre en premier, puis la fenêtre. À la fermeture, la fenêtre se ferme en premier, puis le store.",
+        "data": {
+          "name": "Nom",
+          "window_entity": "Entité fenêtre",
+          "store_entity": "Entité store"
+        }
+      }
+    },
+    "error": {
+      "unknown_entity": "Cette entité n'existe pas dans Home Assistant",
+      "not_cover": "Cette entité doit être une entité cover (fenêtre/store)",
+      "same_entity": "La fenêtre et le store doivent être deux entités différentes"
+    }
+  }
+}

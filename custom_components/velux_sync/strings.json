@@ -1,0 +1,20 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Velux Sync",
+        "description": "Link a roof window and its store so they move in sequence: when opening, the store moves first, then the window. When closing, the window closes first, then the store.",
+        "data": {
+          "name": "Name",
+          "window_entity": "Window entity",
+          "store_entity": "Store entity"
+        }
+      }
+    },
+    "error": {
+      "unknown_entity": "This entity does not exist in Home Assistant",
+      "not_cover": "This entity must be a cover entity (window/store)",
+      "same_entity": "The window and the store must be two different entities"
+    }
+  }
+}
