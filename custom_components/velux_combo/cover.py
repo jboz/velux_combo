@@ -308,9 +308,7 @@ class SequenceCover(CoverEntity):
             self.async_write_ha_state()
 
     async def _move_entity(self, entity_id: str, *, opening: bool) -> None:
-        """Move one child and wait for it to reach its target state."""
-        target_state = STATE_OPEN if opening else STATE_CLOSED
-
+        """Move one child and wait for it to physically reach its target."""
         state = self.hass.states.get(entity_id)
         if state is None or state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
             _LOGGER.warning(
@@ -321,9 +319,6 @@ class SequenceCover(CoverEntity):
             )
             return
 
-        if self._already_at_target(state, opening):
-            return
-
         arrived = asyncio.Event()
 
         @callback
@@ -331,7 +326,7 @@ class SequenceCover(CoverEntity):
             new_state: State | None = event.data.get("new_state")
             if new_state is None:
                 return
-            if new_state.state == target_state or self._stop_requested:
+            if self._already_at_target(new_state, opening) or self._stop_requested:
                 arrived.set()
 
         unsubscribe = async_track_state_change_event(
@@ -350,9 +345,9 @@ class SequenceCover(CoverEntity):
                 await asyncio.wait_for(arrived.wait(), timeout=DEFAULT_TIMEOUT)
             except asyncio.TimeoutError:
                 _LOGGER.warning(
-                    "Timeout waiting for %s to reach %s after %s seconds",
+                    "Timeout waiting for %s to reach its %s position after %s seconds",
                     entity_id,
-                    target_state,
+                    "open" if opening else "closed",
                     DEFAULT_TIMEOUT,
                 )
         finally:
@@ -362,16 +357,19 @@ class SequenceCover(CoverEntity):
 
     @staticmethod
     def _already_at_target(state: State, opening: bool) -> bool:
-        """Return True when the child is already at the target position."""
-        target_state = STATE_OPEN if opening else STATE_CLOSED
-        if state.state == target_state:
-            return True
+        """Return True when the child has physically reached the target.
 
+        The state alone is not enough: a partially opened store can already
+        report ``open``. A known ``current_position`` must confirm the target
+        (>= 99 when opening, <= 1 when closing); fall back to the state only
+        when no position is reported.
+        """
         position = state.attributes.get("current_position")
-        if not isinstance(position, (int, float)):
-            return False
-        if opening and position >= 99:
-            return True
-        if not opening and position <= 1:
-            return True
-        return False
+        if isinstance(position, (int, float)):
+            if opening and position >= 99:
+                return True
+            if not opening and position <= 1:
+                return True
+
+        target_state = STATE_OPEN if opening else STATE_CLOSED
+        return state.state == target_state and not isinstance(position, (int, float))

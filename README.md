@@ -65,6 +65,10 @@ Once configured, use the new cover entity like any other:
 - Only full *open → close* commands are exposed (no position slider): the
   sequencing guarantees the window is never partially opened with the store
   rolled down.
+- Each step waits until its child has **physically** reached the target: a
+  `current_position` of `>= 99` (opening) or `<= 1` (closing) is required
+  before the next child starts. State alone is not trusted — a partially
+  opened store can already report `open`.
 - If a child never reaches its target within `120 s`, the integration logs a
   warning and moves on to the next step.
 - Commands that arrive while a sequence is already running are ignored
