@@ -126,27 +126,51 @@ store covers you selected during setup).
 ### Open or close all Velux at once
 
 Add a **cover group** helper containing all your combined entities
-(`cover.velux_*`), then control them from a single card. When the group is told
-to open or close, it drives every member: each combined entity starts its own
-sequence immediately in the background, so all Velux move **in parallel**.
+(`cover.velux_*`), then control them from a single row of cards. When the group
+is told to open or close, it drives every member: each combined entity starts
+its own sequence immediately in the background, so all Velux move
+**in parallel**.
 
 1. **Settings → Devices & Services → Helpers → Create Helper → Group →
    Cover group**.
 2. Select all your combined entities (e.g. `cover.velux_1` … `cover.velux_7`)
    and give the group a name, e.g. `Tous les Velux` (the entity becomes
    `cover.tous_les_velux`).
-3. Add the group's tile card at the top of your row:
+
+> A cover group reports itself as *open* as soon as **any** member is open, so
+> the `cover-open-close` feature would gray out its **Open** button almost all
+> the time. Instead, use two small tiles that call the services directly — they
+> are never disabled, and members that are already fully open are simply no-ops:
 
 ```yaml
-type: tile
-entity: cover.tous_les_velux
-name: Tous les Velux
-features:
-  - type: cover-open-close
+type: horizontal-stack
+cards:
+  - type: tile
+    entity: cover.tous_les_velux
+    name: Ouvrir
+    icon: mdi:arrow-up-bold-circle-outline
+    hide_state: true
+    vertical: false
+    tap_action:
+      action: perform-action
+      target:
+        entity_id: cover.tous_les_velux
+      perform_action: cover.open_cover
+  - type: tile
+    entity: cover.tous_les_velux
+    name: Fermer
+    icon: mdi:arrow-down-bold-circle-outline
+    hide_state: true
+    vertical: false
+    tap_action:
+      action: perform-action
+      target:
+        entity_id: cover.tous_les_velux
+      perform_action: cover.close_cover
 ```
 
-The group card exposes the global **open / stop / close** buttons and the
-group's combined state.
+The global services also work on the group directly:
+`cover.open_cover`, `cover.close_cover` and `cover.stop_cover`.
 
 ### Notes on the examples
 
