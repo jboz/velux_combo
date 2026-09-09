@@ -23,7 +23,7 @@ Why this order?
 
 1. Make sure [HACS](https://hacs.xyz) is installed.
 2. In HACS → **three-dot menu** → **Custom repositories**:
-   - URL: `https://github.com/jboz/velux_sync`
+   - URL: `https://github.com/jboz/velux_combo`
    - Category: **Integration**
 3. Click **Download** and install.
 4. **Restart Home Assistant.**
@@ -69,6 +69,95 @@ Once configured, use the new cover entity like any other:
   warning and moves on to the next step.
 - Commands that arrive while a sequence is already running are ignored
   (see `Stop`).
+
+## Dashboard examples
+
+Ready-made Lovelace cards build on the native **tile** card and its selectable
+**features** — no custom card required. Each tile shows its own state
+(open / closed / opening / closing) and its own controls.
+
+### One card per Velux (window + store + combined)
+
+```yaml
+type: vertical-stack
+cards:
+  # Combined (sequenced) control: open / stop / close only
+  - type: tile
+    entity: cover.velux_sync_living_room
+    name: Velux Living Room
+    features:
+      - type: cover-open-close
+
+  # Window: preset positions (favorites)
+  - type: tile
+    entity: cover.window_living_room
+    name: Window
+    features:
+      - type: cover-position-favorite
+
+  # Store: preset positions (favorites)
+  - type: tile
+    entity: cover.store_living_room
+    name: Store
+    features:
+      - type: cover-position-favorite
+```
+
+Replace the entity ids with your own (`cover.velux_sync_*`, plus the window and
+store covers you selected during setup).
+
+### One row of Velux, one card each
+
+Repeat the `vertical-stack` above once per Velux and wrap them in a **grid** or
+**horizontal-stack**:
+
+```yaml
+type: grid
+columns: 7
+cards:
+  - type: vertical-stack
+    cards:
+      - type: tile
+        entity: cover.velux_sync_1
+        features:
+          - type: cover-open-close
+      - type: tile
+        entity: cover.window_1
+        features:
+          - type: cover-position-favorite
+      - type: tile
+        entity: cover.store_1
+        features:
+          - type: cover-position-favorite
+  # ... repeat for each Velux
+  - type: vertical-stack
+    cards:
+      - type: tile
+        entity: cover.velux_sync_7
+        features:
+          - type: cover-open-close
+      - type: tile
+        entity: cover.window_7
+        features:
+          - type: cover-position-favorite
+      - type: tile
+        entity: cover.store_7
+        features:
+          - type: cover-position-favorite
+```
+
+### Notes on the examples
+
+- The combined entity only supports full *open / close*: use
+  `cover-open-close` and do **not** add a position slider to it.
+- `cover-position-favorite` shows the **preset positions** (by default
+  0 / 25 / 50 / 75 / 100 %). Edit them from the entity's *More info* dialog:
+  press and hold a preset to change or remove it (e.g. delete 50 % to get
+  0 / 25 / 75 / 100 %).
+- `cover-position` adds a free slider instead of presets, if you prefer fine
+  control.
+- These features require a recent Home Assistant version with tile card
+  **features** support.
 
 ## Troubleshooting
 
