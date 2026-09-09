@@ -1,4 +1,4 @@
-# Velux Sync
+# Velux Combo
 
 Custom Home Assistant integration that synchronises a **Velux roof window** and its **store** (roller shutter) so they move in a safe, deterministic sequence.
 
@@ -28,13 +28,13 @@ Why this order?
 3. Click **Download** and install.
 4. **Restart Home Assistant.**
 
-*Manual install:* copy the `custom_components/velux_sync` folder into your `<config>/custom_components/` directory and restart Home Assistant.
+*Manual install:* copy the `custom_components/velux_combo` folder into your `<config>/custom_components/` directory and restart Home Assistant.
 
 ## Configuration
 
 The integration is configured entirely from the UI:
 
-1. Go to **Settings → Devices & Services → Add Integration → Velux Sync**.
+1. Go to **Settings → Devices & Services → Add Integration → Velux Combo**.
 2. Select the **window** cover entity.
 3. Select the **store** cover entity.
 4. (Optional) give the pair a name.
@@ -83,7 +83,7 @@ type: vertical-stack
 cards:
   # Combined (sequenced) control: open / stop / close only
   - type: tile
-    entity: cover.velux_sync_living_room
+    entity: cover.velux_combo_living_room
     name: Velux Living Room
     features:
       - type: cover-open-close
@@ -103,7 +103,7 @@ cards:
       - type: cover-position-favorite
 ```
 
-Replace the entity ids with your own (`cover.velux_sync_*`, plus the window and
+Replace the entity ids with your own (`cover.velux_combo_*`, plus the window and
 store covers you selected during setup).
 
 ### One row of Velux, one card each
@@ -118,7 +118,7 @@ cards:
   - type: vertical-stack
     cards:
       - type: tile
-        entity: cover.velux_sync_1
+        entity: cover.velux_combo_1
         features:
           - type: cover-open-close
       - type: tile
@@ -133,7 +133,7 @@ cards:
   - type: vertical-stack
     cards:
       - type: tile
-        entity: cover.velux_sync_7
+        entity: cover.velux_combo_7
         features:
           - type: cover-open-close
       - type: tile

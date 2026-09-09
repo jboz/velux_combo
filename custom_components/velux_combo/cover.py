@@ -1,6 +1,6 @@
-"""Cover platform for the Velux Sync integration.
+"""Cover platform for the Velux Combo integration.
 
-A Velux Sync cover pairs a roof window and its store (roller shutter).
+A Velux Combo cover pairs a roof window and its store (roller shutter).
 Sequencing is enforced on every command:
 
 - ``async_open_cover``: the store opens first, then the window opens. This
@@ -32,7 +32,7 @@ from homeassistant.core import Event, HomeAssistant, State, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_state_change_event
 
-from .const import CONF_STORE_ENTITY, CONF_WINDOW_ENTITY, DEFAULT_TIMEOUT, DOMAIN
+from .const import CONF_STORE_ENTITY, CONF_WINDOW_ENTITY, DEFAULT_TIMEOUT
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up Velux Sync covers from a config entry."""
+    """Set up Velux Combo covers from a config entry."""
     async_add_entities([SequenceCover(hass, entry)], update_before_add=True)
 
 

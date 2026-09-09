@@ -1,6 +1,6 @@
 {
-  "domain": "velux_sync",
-  "name": "Velux Sync",
+  "domain": "velux_combo",
+  "name": "Velux Combo",
   "codeowners": ["@jboz"],
   "config_flow": true,
   "dependencies": [],

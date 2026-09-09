@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Velux Sync",
+        "title": "Velux Combo",
         "description": "Link a roof window and its store so they move in sequence: when opening, the store moves first, then the window. When closing, the window closes first, then the store.",
         "data": {
           "name": "Name",
