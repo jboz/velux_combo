@@ -112,6 +112,31 @@ cards:
 Replace the entity ids with your own (`cover.velux_*`, plus the window and
 store covers you selected during setup).
 
+### Open or close all Velux at once
+
+Add a **cover group** helper containing all your combined entities
+(`cover.velux_*`), then control them from a single card. When the group is told
+to open or close, it drives every member: each combined entity starts its own
+sequence immediately in the background, so all Velux move **in parallel**.
+
+1. **Settings → Devices & Services → Helpers → Create Helper → Group →
+   Cover group**.
+2. Select all your combined entities (e.g. `cover.velux_1` … `cover.velux_7`)
+   and give the group a name, e.g. `Tous les Velux` (the entity becomes
+   `cover.tous_les_velux`).
+3. Add the group's tile card at the top of your row:
+
+```yaml
+type: tile
+entity: cover.tous_les_velux
+name: Tous les Velux
+features:
+  - type: cover-open-close
+```
+
+The group card exposes the global **open / stop / close** buttons and the
+group's combined state.
+
 ### Notes on the examples
 
 - The combined entity only supports full *open / close*: use
