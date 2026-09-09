@@ -70,9 +70,12 @@ Once configured, use the new cover entity like any other:
 - Commands that arrive while a sequence is already running are ignored
   (see `Stop`).
 - **Stop** halts each running child: it uses the child's native stop when
-  available, otherwise it falls back to pinning the child to its
-  `current_position` via `set_cover_position` — this stops covers (e.g. Velux /
-  HomeKit) that expose no `stop` support.
+  available, otherwise it briefly sends the **opposite command** to make the
+  child refresh its `current_position` (which is otherwise stale during
+  travel), captures the refreshed value and pins the cover to it via
+  `set_cover_position`. This works with covers (e.g. Velux / HomeKit) that
+  expose no native `stop` but refresh their position when the travel
+  direction is reversed.
 
 ## Dashboard examples
 

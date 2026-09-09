@@ -45,6 +45,8 @@ SUPPORTED_FEATURES = (
 
 _MOVING_STATES = {STATE_OPENING, STATE_CLOSING}
 
+STOP_POSITION_CAPTURE_TIMEOUT = 10.0
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -187,28 +189,93 @@ class SequenceCover(CoverEntity):
             )
             return
 
-        position = state.attributes.get("current_position")
-        if (
-            supported & CoverEntityFeature.SET_POSITION
-            and isinstance(position, (int, float))
-        ):
-            _LOGGER.debug(
-                "%s has no stop support, pinning it to its current position (%s)",
+        if not supported & CoverEntityFeature.SET_POSITION:
+            _LOGGER.warning(
+                "Cannot stop %s: it supports neither stop nor set_cover_position",
                 entity_id,
-                position,
-            )
-            await self.hass.services.async_call(
-                "cover",
-                SERVICE_SET_COVER_POSITION,
-                {"entity_id": entity_id, "position": position},
-                blocking=True,
             )
             return
 
-        _LOGGER.warning(
-            "Cannot stop %s: it supports neither stop nor set_cover_position",
-            entity_id,
+        reverse_service = (
+            SERVICE_CLOSE_COVER
+            if state.state == STATE_OPENING
+            else SERVICE_OPEN_COVER
         )
+        position = await self._capture_position_on_reverse(
+            entity_id, reverse_service
+        )
+        if position is None:
+            _LOGGER.warning(
+                "Cannot stop %s: current_position never refreshed on reversal",
+                entity_id,
+            )
+            return
+
+        _LOGGER.debug(
+            "%s captured its live position (%s) on reversal, pinning it there",
+            entity_id,
+            position,
+        )
+        await self.hass.services.async_call(
+            "cover",
+            SERVICE_SET_COVER_POSITION,
+            {"entity_id": entity_id, "position": position},
+            blocking=True,
+        )
+
+    async def _capture_position_on_reverse(
+        self, entity_id: str, service: str
+    ) -> int | float | None:
+        """Send the reverse command and grab the refreshed current_position.
+
+        While a child is moving its reported current_position is stale. Sending
+        the opposite command makes the device refresh it (before it really
+        starts turning around); we capture that value so the caller can pin the
+        cover to it and effectively stop it in place.
+        """
+        before = self.hass.states.get(entity_id)
+        previous = (
+            before.attributes.get("current_position") if before is not None else None
+        )
+        if not isinstance(previous, (int, float)):
+            previous = None
+
+        captured = asyncio.Event()
+        position: int | float | None = None
+
+        @callback
+        def _on_change(event: Event) -> None:
+            nonlocal position
+            new_state: State | None = event.data.get("new_state")
+            if new_state is None:
+                return
+            value = new_state.attributes.get("current_position")
+            if isinstance(value, (int, float)) and value != previous:
+                position = value
+                captured.set()
+
+        unsubscribe = async_track_state_change_event(
+            self.hass, [entity_id], _on_change
+        )
+        try:
+            await self.hass.services.async_call(
+                "cover", service, {"entity_id": entity_id}, blocking=False
+            )
+            try:
+                await asyncio.wait_for(
+                    captured.wait(), timeout=STOP_POSITION_CAPTURE_TIMEOUT
+                )
+            except asyncio.TimeoutError:
+                _LOGGER.warning(
+                    "%s never refreshed its position after %s was sent",
+                    entity_id,
+                    service,
+                )
+                return None
+        finally:
+            unsubscribe()
+
+        return position
 
     async def _run_sequence(self, *, opening: bool) -> None:
         """Queue a sequence if none is already running."""
