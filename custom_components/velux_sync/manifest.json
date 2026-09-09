@@ -4,7 +4,7 @@
   "codeowners": ["@jboz"],
   "config_flow": true,
   "dependencies": [],
-  "documentation": "https://github.com/jboz/velux_sync",
+  "documentation": "https://github.com/jboz/velux_combo",
   "iot_class": "assumed_state",
   "requirements": [],
   "version": "0.1.0"
