@@ -20,6 +20,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     SERVICE_CLOSE_COVER,
     SERVICE_OPEN_COVER,
+    SERVICE_SET_COVER_POSITION,
     SERVICE_STOP_COVER,
     STATE_CLOSED,
     STATE_CLOSING,
@@ -164,14 +165,50 @@ class SequenceCover(CoverEntity):
             await asyncio.sleep(0)
 
         for entity_id in (self._window_entity, self._store_entity):
-            state = self.hass.states.get(entity_id)
-            if state and state.state in _MOVING_STATES:
-                await self.hass.services.async_call(
-                    "cover",
-                    SERVICE_STOP_COVER,
-                    {"entity_id": entity_id},
-                    blocking=True,
-                )
+            await self._stop_entity(entity_id)
+
+    async def _stop_entity(self, entity_id: str) -> None:
+        """Stop one child, even when it has no stop support."""
+        state = self.hass.states.get(entity_id)
+        if state is None or state.state not in _MOVING_STATES:
+            return
+
+        supported = state.attributes.get("supported_features")
+        if not isinstance(supported, int):
+            _LOGGER.warning("Cannot stop %s: no supported_features", entity_id)
+            return
+
+        if supported & CoverEntityFeature.STOP:
+            await self.hass.services.async_call(
+                "cover",
+                SERVICE_STOP_COVER,
+                {"entity_id": entity_id},
+                blocking=True,
+            )
+            return
+
+        position = state.attributes.get("current_position")
+        if (
+            supported & CoverEntityFeature.SET_POSITION
+            and isinstance(position, (int, float))
+        ):
+            _LOGGER.debug(
+                "%s has no stop support, pinning it to its current position (%s)",
+                entity_id,
+                position,
+            )
+            await self.hass.services.async_call(
+                "cover",
+                SERVICE_SET_COVER_POSITION,
+                {"entity_id": entity_id, "position": position},
+                blocking=True,
+            )
+            return
+
+        _LOGGER.warning(
+            "Cannot stop %s: it supports neither stop nor set_cover_position",
+            entity_id,
+        )
 
     async def _run_sequence(self, *, opening: bool) -> None:
         """Queue a sequence if none is already running."""
