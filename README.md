@@ -80,71 +80,37 @@ Ready-made Lovelace cards build on the native **tile** card and its selectable
 
 ```yaml
 type: vertical-stack
+title: Velux 1
 cards:
-  # Combined (sequenced) control: open / stop / close only
   - type: tile
-    entity: cover.velux_combo_living_room
-    name: Velux Living Room
+    entity: cover.velux_1
+    name: Combo
+    vertical: false
     features:
       - type: cover-open-close
-
-  # Window: preset positions (favorites)
-  - type: tile
-    entity: cover.window_living_room
-    name: Window
-    features:
-      - type: cover-position-favorite
-
-  # Store: preset positions (favorites)
-  - type: tile
-    entity: cover.store_living_room
-    name: Store
-    features:
-      - type: cover-position-favorite
+    features_position: bottom
+  - type: horizontal-stack
+    cards:
+      - type: tile
+        entity: cover.velux_1_roof_window
+        name: Fenêtre
+        vertical: false
+        features:
+          - type: cover-position-favorite
+#          - type: cover-position
+#          - type: cover-open-close
+        features_position: bottom
+      - type: tile
+        entity: cover.velux_1_roller_shutter
+        name: Store
+        features:
+          - type: cover-position
+#          - type: cover-open-close
+#          - type: cover-position-favorite
 ```
 
-Replace the entity ids with your own (`cover.velux_combo_*`, plus the window and
+Replace the entity ids with your own (`cover.velux_*`, plus the window and
 store covers you selected during setup).
-
-### One row of Velux, one card each
-
-Repeat the `vertical-stack` above once per Velux and wrap them in a **grid** or
-**horizontal-stack**:
-
-```yaml
-type: grid
-columns: 7
-cards:
-  - type: vertical-stack
-    cards:
-      - type: tile
-        entity: cover.velux_combo_1
-        features:
-          - type: cover-open-close
-      - type: tile
-        entity: cover.window_1
-        features:
-          - type: cover-position-favorite
-      - type: tile
-        entity: cover.store_1
-        features:
-          - type: cover-position-favorite
-  # ... repeat for each Velux
-  - type: vertical-stack
-    cards:
-      - type: tile
-        entity: cover.velux_combo_7
-        features:
-          - type: cover-open-close
-      - type: tile
-        entity: cover.window_7
-        features:
-          - type: cover-position-favorite
-      - type: tile
-        entity: cover.store_7
-        features:
-          - type: cover-position-favorite
-```
 
 ### Notes on the examples
 
