@@ -1,4 +1,4 @@
-"""Config flow for the Velux Sync integration."""
+"""Config flow for the Velux Combo integration."""
 
 from __future__ import annotations
 
@@ -27,8 +27,8 @@ SCHEMA = vol.Schema(
 )
 
 
-class VeluxSyncConfigFlow(ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for Velux Sync."""
+class VeluxComboConfigFlow(ConfigFlow, domain=DOMAIN):
+    """Handle a config flow for Velux Combo."""
 
     VERSION = 1
 

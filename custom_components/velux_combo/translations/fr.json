@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "Velux Sync",
+        "title": "Velux Combo",
         "description": "Associez une fenêtre de toit et son store pour qu'ils bougent en séquence : à l'ouverture, le store s'ouvre en premier, puis la fenêtre. À la fermeture, la fenêtre se ferme en premier, puis le store.",
         "data": {
           "name": "Nom",

@@ -1,4 +1,4 @@
-"""Velux Sync integration."""
+"""Velux Combo integration."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up Velux Sync from a config entry."""
+    """Set up Velux Combo from a config entry."""
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
     return True
