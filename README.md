@@ -69,6 +69,10 @@ Once configured, use the new cover entity like any other:
   warning and moves on to the next step.
 - Commands that arrive while a sequence is already running are ignored
   (see `Stop`).
+- **Stop** halts each running child: it uses the child's native stop when
+  available, otherwise it falls back to pinning the child to its
+  `current_position` via `set_cover_position` — this stops covers (e.g. Velux /
+  HomeKit) that expose no `stop` support.
 
 ## Dashboard examples
 
