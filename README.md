@@ -158,6 +158,17 @@ cards:
       perform_action: cover.open_cover
   - type: tile
     entity: cover.tous_les_velux
+    name: Stop
+    icon: mdi:stop-circle-outline
+    hide_state: true
+    vertical: false
+    tap_action:
+      action: perform-action
+      target:
+        entity_id: cover.tous_les_velux
+      perform_action: cover.stop_cover
+  - type: tile
+    entity: cover.tous_les_velux
     name: Fermer
     icon: mdi:arrow-down-bold-circle-outline
     hide_state: true
