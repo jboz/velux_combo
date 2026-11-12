@@ -319,6 +319,14 @@ class SequenceCover(CoverEntity):
             )
             return
 
+        # Already there: sending the command yields no state change, so waiting
+        # on the arrival event would block until the timeout.
+        if self._already_at_target(state, opening):
+            _LOGGER.debug(
+                "%s is already %s, skipping", entity_id, "open" if opening else "closed"
+            )
+            return
+
         arrived = asyncio.Event()
 
         @callback
@@ -341,6 +349,12 @@ class SequenceCover(CoverEntity):
                 {"entity_id": entity_id},
                 blocking=False,
             )
+            # Some integrations publish the target state synchronously: give
+            # them one loop iteration and short-circuit the wait if so.
+            await asyncio.sleep(0)
+            current = self.hass.states.get(entity_id)
+            if current is not None and self._already_at_target(current, opening):
+                arrived.set()
             try:
                 await asyncio.wait_for(arrived.wait(), timeout=DEFAULT_TIMEOUT)
             except asyncio.TimeoutError:

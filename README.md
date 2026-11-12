@@ -69,6 +69,9 @@ Once configured, use the new cover entity like any other:
   `current_position` of `>= 99` (opening) or `<= 1` (closing) is required
   before the next child starts. State alone is not trusted — a partially
   opened store can already report `open`.
+- A child that is **already** at the requested position is skipped instantly:
+  no command is sent and the next step starts right away (previously this cost
+  a full `120 s` timeout).
 - If a child never reaches its target within `120 s`, the integration logs a
   warning and moves on to the next step.
 - Commands that arrive while a sequence is already running are ignored
